@@ -1,0 +1,6 @@
+<launch>
+    <rosparam command="load" file="$(find localization)/config/params.yaml" />
+
+    <node name="camera_publisher" pkg="localization" type="camera_publisher.py" />
+    <node name="position_publisher" pkg="localization" type="position_publisher.py" />
+</launch>
