@@ -51,6 +51,9 @@ class CameraPublisher:
             # Convert the image to a ROS Image message
             ros_image = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
 
+            # Resize frame to smaller size
+            ros_image = cv2.resize(ros_image, (960, 540))
+
             # Publish the image on the specified topic
             self.publisher_.publish(ros_image)
         else:
