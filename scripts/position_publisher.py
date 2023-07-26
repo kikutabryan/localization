@@ -62,7 +62,7 @@ class PositionPublisher:
         # Convert the ROS Image message to an OpenCV image
         self.frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
 
-    def publish_position(self):
+    def publish_position(self, event):
         if self.frame is not None:
             rospy.loginfo("Hi")
             try:
