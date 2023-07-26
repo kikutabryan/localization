@@ -48,6 +48,9 @@ class CameraPublisher:
         ret, frame = self.cap.read()
 
         if ret:
+            # Resize frame to smaller size
+            frame = cv2.resize(frame, (960, 540))
+
             # Convert the image to a ROS Image message
             ros_image = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
 
