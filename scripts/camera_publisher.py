@@ -27,7 +27,7 @@ class CameraPublisher:
 
         # Create a timer event to periodically publish images
         # The timer period is set to 1/30th of a second (approximately 30 fps)
-        self.timer = rospy.Timer(rospy.Duration(1.0 / 40), self.publish_image)
+        self.timer = rospy.Timer(rospy.Duration(1.0 / 30), self.publish_image)
 
     def connect_camera(self):
         # Check if the video capture is already open or not
@@ -49,7 +49,7 @@ class CameraPublisher:
 
         if ret:
             # Resize frame to smaller size
-            frame = cv2.resize(frame, (960, 540))
+            # frame = cv2.resize(frame, (960, 540))
 
             # Convert the image to a ROS Image message
             ros_image = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')

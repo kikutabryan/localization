@@ -64,7 +64,6 @@ class PositionPublisher:
 
     def publish_position(self, event):
         if self.frame is not None:
-            rospy.loginfo("Hi")
             try:
                 # Convert the frame to grayscale
                 gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
