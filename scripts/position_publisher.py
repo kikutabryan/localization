@@ -110,15 +110,15 @@ class PositionPublisher:
 
                 # Publish the position as a ROS message
                 vision_msg = PoseStamped()
-                vision_msg.header = Header()
                 vision_msg.header.stamp = rospy.Time.now()
+                vision_msg.header.frame_id = 'map'
                 vision_msg.pose.position.x = float(self.position_ros[0])
                 vision_msg.pose.position.y = float(self.position_ros[1])
                 vision_msg.pose.position.z = float(self.position_ros[2])
-                vision_msg.pose.orientation.x = float(self.quaternion_ros[0])
-                vision_msg.pose.orientation.y = float(self.quaternion_ros[1])
-                vision_msg.pose.orientation.z = float(self.quaternion_ros[2])
-                vision_msg.pose.orientation.w = float(self.quaternion_ros[3])
+                # vision_msg.pose.orientation.x = float(self.quaternion_ros[0])
+                # vision_msg.pose.orientation.y = float(self.quaternion_ros[1])
+                # vision_msg.pose.orientation.z = float(self.quaternion_ros[2])
+                # vision_msg.pose.orientation.w = float(self.quaternion_ros[3])
                 self.publisher1_.publish(vision_msg)
 
             except Exception as e:
