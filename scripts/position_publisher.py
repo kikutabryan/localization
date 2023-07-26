@@ -63,7 +63,7 @@ class PositionPublisher:
         self.frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
 
     def publish_position(self):
-        if self.frame != None:
+        if self.frame is not None:
             rospy.loginfo("Hi")
             try:
                 # Convert the frame to grayscale
