@@ -60,7 +60,7 @@ class PositionPublisher:
 
     def frame_updater(self, msg):
         # Convert the ROS Image message to an OpenCV image
-        self.frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        self.frame = cv2.resize(self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8'), (960, 540))
 
     def publish_position(self, event):
         if self.frame is not None:
