@@ -32,6 +32,8 @@ class PositionPublisher:
         # Create a subscriber to listen to the camera image topic
         self.subscription = rospy.Subscriber('camera_image_topic', Image, self.publish_position, queue_size=10)
 
+        self.timer = rospy.Timer(rospy.Duration(1.0 / 30), self.publish_position)
+
         # Create a CvBridge object to convert ROS Image messages to OpenCV images
         self.bridge = CvBridge()
 
@@ -45,71 +47,82 @@ class PositionPublisher:
 
         self.frame = None
 
+        self.position_ros = np.empty((3, 1))
+        self.position_ros[0] = 0
+        self.position_ros[1] = 0
+        self.position_ros[2] = 0
+
+        self.quaternion_ros = np.empty((4, 1))
+        self.quaternion_ros[0] = 0
+        self.quaternion_ros[1] = 0
+        self.quaternion_ros[2] = 0
+        self.quaternion_ros[3] = 1
+
+    def frame_updater(self, msg):
+        # Convert the ROS Image message to an OpenCV image
+        self.frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+
     def publish_position(self, msg):
-        try:
-            # Convert the ROS Image message to an OpenCV image
-            self.frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        if self.frame != None:
+            try:
+                # Convert the frame to grayscale
+                gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
 
-            # Convert the frame to grayscale
-            gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+                # Detect the aruco markers in the frame
+                corners, ids, rejected = cv2.aruco.detectMarkers(gray, self.aruco_dict, parameters=self.aruco_params)
 
-            # Detect the aruco markers in the frame
-            corners, ids, rejected = cv2.aruco.detectMarkers(gray, self.aruco_dict, parameters=self.aruco_params)
+                # If at least one marker is detected
+                if ids is not None:
+                    # Estimate the pose of the board relative to the camera
+                    ret, rvec, tvec = cv2.aruco.estimatePoseBoard(corners, ids, self.board, self.camera_matrix,
+                                                                self.dist_coeffs, None, None, False)
 
-            # If at least one marker is detected
-            if ids is not None:
-                # Estimate the pose of the board relative to the camera
-                ret, rvec, tvec = cv2.aruco.estimatePoseBoard(corners, ids, self.board, self.camera_matrix,
-                                                              self.dist_coeffs, None, None, False)
+                    # If the pose estimation is successful
+                    if ret > 0:
+                        # Determine the rotation matrix from the board to the camera
+                        camera_to_board_matrix, _ = cv2.Rodrigues(rvec)
+                        board_to_camera_matrix = np.matrix(camera_to_board_matrix).T
 
-                # If the pose estimation is successful
-                if ret > 0:
-                    # Determine the rotation matrix from the board to the camera
-                    camera_to_board_matrix, _ = cv2.Rodrigues(rvec)
-                    board_to_camera_matrix = np.matrix(camera_to_board_matrix).T
+                        # Determine the translation vector from the board to the camera
+                        camera_to_board_vector = np.empty((3, 1))
+                        camera_to_board_vector[0] = tvec[0, 0]
+                        camera_to_board_vector[1] = tvec[1, 0]
+                        camera_to_board_vector[2] = tvec[2, 0]
+                        board_to_camera_vector = -np.matmul(board_to_camera_matrix, camera_to_board_vector)
+                        position_cv2 = np.empty((3, 1))
+                        position_cv2[0] = board_to_camera_vector[0]
+                        position_cv2[1] = board_to_camera_vector[1]
+                        position_cv2[2] = board_to_camera_vector[2]
 
-                    # Determine the translation vector from the board to the camera
-                    camera_to_board_vector = np.empty((3, 1))
-                    camera_to_board_vector[0] = tvec[0, 0]
-                    camera_to_board_vector[1] = tvec[1, 0]
-                    camera_to_board_vector[2] = tvec[2, 0]
-                    board_to_camera_vector = -np.matmul(board_to_camera_matrix, camera_to_board_vector)
-                    position_cv2 = np.empty((3, 1))
-                    position_cv2[0] = board_to_camera_vector[0]
-                    position_cv2[1] = board_to_camera_vector[1]
-                    position_cv2[2] = board_to_camera_vector[2]
+                        # Convert CV2 positions to ROS (ENU)
+                        self.position_ros[0] = position_cv2[0]
+                        self.position_ros[1] = -position_cv2[1]
+                        self.position_ros[2] = -position_cv2[2]
 
-                    # Convert CV2 positions to ROS (ENU)
-                    position_ros = np.empty((3, 1))
-                    position_ros[0] = position_cv2[0]
-                    position_ros[1] = -position_cv2[1]
-                    position_ros[2] = -position_cv2[2]
+                        # Generate a quaternion from the rotation matrix
+                        quaternion_cv2 = self.rotation_matrix_to_quaternion(board_to_camera_matrix)
 
-                    # Generate a quaternion from the rotation matrix
-                    quaternion_cv2 = self.rotation_matrix_to_quaternion(board_to_camera_matrix)
+                        # Convert CV2 quaternion to ROS
+                        self.quaternion_ros[0] = -quaternion_cv2[1]
+                        self.quaternion_ros[1] = -quaternion_cv2[0]
+                        self.quaternion_ros[2] = -quaternion_cv2[2]
+                        self.quaternion_ros[3] = quaternion_cv2[3]
 
-                    # Convert CV2 quaternion to ROS
-                    quaternion_ros = np.empty((4, 1))
-                    quaternion_ros[0] = -quaternion_cv2[1]
-                    quaternion_ros[1] = -quaternion_cv2[0]
-                    quaternion_ros[2] = -quaternion_cv2[2]
-                    quaternion_ros[3] = quaternion_cv2[3]
+                # Publish the position as a ROS message
+                vision_msg = PoseStamped()
+                vision_msg.header = Header()
+                vision_msg.header.stamp = rospy.Time.now()
+                vision_msg.pose.position.x = float(self.position_ros[0])
+                vision_msg.pose.position.y = float(self.position_ros[1])
+                vision_msg.pose.position.z = float(self.position_ros[2])
+                vision_msg.pose.orientation.x = float(self.quaternion_ros[0])
+                vision_msg.pose.orientation.y = float(self.quaternion_ros[1])
+                vision_msg.pose.orientation.z = float(self.quaternion_ros[2])
+                vision_msg.pose.orientation.w = float(self.quaternion_ros[3])
+                self.publisher1_.publish(vision_msg)
 
-                    # Publish the position as a ROS message
-                    vision_msg = PoseStamped()
-                    vision_msg.header = Header()
-                    vision_msg.header.stamp = rospy.Time.now()
-                    vision_msg.pose.position.x = float(position_ros[0])
-                    vision_msg.pose.position.y = float(position_ros[1])
-                    vision_msg.pose.position.z = float(position_ros[2])
-                    vision_msg.pose.orientation.x = float(quaternion_ros[0])
-                    vision_msg.pose.orientation.y = float(quaternion_ros[1])
-                    vision_msg.pose.orientation.z = float(quaternion_ros[2])
-                    vision_msg.pose.orientation.w = float(quaternion_ros[3])
-                    self.publisher1_.publish(vision_msg)
-
-        except Exception as e:
-            rospy.logerr('Error: ' + str(e))
+            except Exception as e:
+                rospy.logerr('Error: ' + str(e))
 
     def rotation_matrix_to_quaternion(self, m):
         q = np.empty((4,), dtype=np.float64)
