@@ -30,7 +30,7 @@ class PositionPublisher:
         self.publisher1_ = rospy.Publisher('/mavros/vision_pose/pose', PoseStamped, queue_size=10)
 
         # Create a subscriber to listen to the camera image topic
-        self.subscription = rospy.Subscriber('camera_image_topic', Image, self.publish_position, queue_size=10)
+        self.subscription = rospy.Subscriber('camera_image_topic', Image, self.frame_updater, queue_size=10)
 
         self.timer = rospy.Timer(rospy.Duration(1.0 / 30), self.publish_position)
 
