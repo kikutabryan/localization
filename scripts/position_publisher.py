@@ -159,8 +159,6 @@ class PositionPublisher:
 def main():
     position_publisher = PositionPublisher()
     rospy.spin()
-    position_publisher.destroy_node()
-
 
 if __name__ == '__main__':
     main()
