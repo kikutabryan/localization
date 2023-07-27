@@ -32,7 +32,7 @@ class PositionPublisher:
         # Create a subscriber to listen to the camera image topic
         self.subscription = rospy.Subscriber('camera_image_topic', Image, self.update_position, queue_size=10)
 
-        self.timer = rospy.Timer(rospy.Duration(1.0 / 30), self.publish_position)
+        self.timer = rospy.Timer(rospy.Duration(1.0 / 40), self.publish_position)
 
         # Create a CvBridge object to convert ROS Image messages to OpenCV images
         self.bridge = CvBridge()
