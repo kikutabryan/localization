@@ -93,13 +93,13 @@ class PositionPublisher:
                     position_cv2[2] = board_to_camera_vector[2]
 
                     # Convert CV2 positions to ROS (ENU)
-                    self.position_ros[0] = position_cv2[0]
-                    self.position_ros[1] = -position_cv2[1]
+                    self.position_ros[0] = -position_cv2[0]
+                    self.position_ros[1] = position_cv2[1]
                     self.position_ros[2] = -position_cv2[2]
 
-                    self.position_ros[0] = -self.position_ros[0]
-                    self.position_ros[1] = -self.position_ros[1]
-                    self.position_ros[2] = self.position_ros[2]
+                    # self.position_ros[0] = -self.position_ros[0]
+                    # self.position_ros[1] = -self.position_ros[1]
+                    # self.position_ros[2] = self.position_ros[2]
 
                     # Generate a quaternion from the rotation matrix
                     quaternion_cv2 = self.rotation_matrix_to_quaternion(board_to_camera_matrix)
