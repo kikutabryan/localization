@@ -12,6 +12,19 @@ class PositionPublisher:
     def __init__(self):
         rospy.init_node('position_publisher')
 
+        self.frame = None
+
+        self.position_ros = np.empty((3, 1))
+        self.position_ros[0] = 0
+        self.position_ros[1] = 0
+        self.position_ros[2] = 0
+
+        self.quaternion_ros = np.empty((4, 1))
+        self.quaternion_ros[0] = 0
+        self.quaternion_ros[1] = 0
+        self.quaternion_ros[2] = 0
+        self.quaternion_ros[3] = 1
+
         # Declare parameters
         self.marker_size = rospy.get_param('marker_size', 0.1)
         self.marker_spacing = rospy.get_param('marker_spacing', 0.1)
@@ -44,19 +57,6 @@ class PositionPublisher:
         # Create the aruco board object with 4x4 grid and 16 markers
         self.board = cv2.aruco.GridBoard_create(self.markers_y, self.markers_x, self.marker_size, self.marker_spacing,
                                                 self.aruco_dict)
-
-        self.frame = None
-
-        self.position_ros = np.empty((3, 1))
-        self.position_ros[0] = 0
-        self.position_ros[1] = 0
-        self.position_ros[2] = 0
-
-        self.quaternion_ros = np.empty((4, 1))
-        self.quaternion_ros[0] = 0
-        self.quaternion_ros[1] = 0
-        self.quaternion_ros[2] = 0
-        self.quaternion_ros[3] = 1
 
     def update_position(self, msg):
         # Convert the ROS Image message to an OpenCV image
