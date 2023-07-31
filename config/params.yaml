@@ -1,5 +1,4 @@
-video_source: 'nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! nvvidconv flip-method=3 ! videoconvert ! video/x-raw, format=(string)BGR ! appsink'
-
+video_source: 'nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! nvvidconv flip-method=3 ! video/x-raw, width=1280, height=720, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink'
 camera_matrix: '[[1204.4697584542726, 0.0, 354.6182298916754], [0.0, 1201.8571173383637,
   652.7026112972777], [0.0, 0.0, 1.0]]'
 dist_coeffs: '[[0.008252427738841408, 0.17962144633096283, -0.0010671121861827175,
