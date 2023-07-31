@@ -25,10 +25,10 @@ class PositionPublisher:
         self.quaternion_ros[3] = 1
 
         # Declare parameters
-        self.marker_size = rospy.get_param('marker_size', 0.1)
-        self.marker_spacing = rospy.get_param('marker_spacing', 0.1)
-        self.markers_x = rospy.get_param('markers_x', 2)
-        self.markers_y = rospy.get_param('markers_y', 2)
+        self.marker_size = rospy.get_param('marker_size', 0.075)
+        self.marker_spacing = rospy.get_param('marker_spacing', 0.5)
+        self.markers_x = rospy.get_param('markers_x', 7)
+        self.markers_y = rospy.get_param('markers_y', 7)
 
         # Parse the camera matrix from the parameter server and convert it to a NumPy array
         camera_matrix_str = rospy.get_param('camera_matrix', None)
@@ -44,7 +44,7 @@ class PositionPublisher:
         # Create a subscriber to listen to the camera image topic
         self.subscription = rospy.Subscriber('camera_image_topic', Image, self.update_position, queue_size=10)
 
-        self.timer = rospy.Timer(rospy.Duration(1.0 / 40), self.publish_position)
+        self.timer = rospy.Timer(rospy.Duration(1.0 / 50), self.publish_position)
 
         # Create a CvBridge object to convert ROS Image messages to OpenCV images
         self.bridge = CvBridge()
