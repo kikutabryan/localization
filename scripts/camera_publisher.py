@@ -46,7 +46,7 @@ class CameraPublisher:
             except cv2.error as e:
                 rospy.logerr('Error: ' + str(e))
 
-    def publish_image(self, event):
+    def publish_image(self):
         # Read a frame from the camera feed
         ret, frame = self.cap.read()
 
