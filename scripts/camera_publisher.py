@@ -17,10 +17,13 @@ class CameraPublisher:
         self.bridge = CvBridge()
 
         # Get the video source path from the parameter server
-        self.video_source = rospy.get_param('video_source', '/dev/video0')
+        self.video_source = rospy.get_param('video_source', 'nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! nvvidconv flip-method=3 ! videoconvert ! video/x-raw, format=(string)BGR ! appsink')
 
         # Video capture object
         self.cap = None
+
+        # ROS image to publish
+        self.ros_image = None
 
         # Open the camera feed
         self.connect_camera()
@@ -36,6 +39,10 @@ class CameraPublisher:
                 # Open the camera feed
                 source = self.video_source
                 self.cap = cv2.VideoCapture(source)
+                # self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+                # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+                # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+                # self.cap.set(cv2.CAP_PROP_FPS, 30)
                 if self.cap.isOpened():
                     rospy.loginfo('Camera was opened successfully')
                 else:
@@ -52,13 +59,15 @@ class CameraPublisher:
             # frame = cv2.resize(frame, (960, 540))
 
             # Convert the image to a ROS Image message
-            ros_image = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
+            self.ros_image = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
 
-            # Publish the image on the specified topic
-            self.publisher_.publish(ros_image)
         else:
             # Attempt to connect the camera again
             self.connect_camera()
+
+        if self.ros_image is not None:
+            # Publish the image on the specified topic
+            self.publisher_.publish(self.ros_image)
 
     def __del__(self):
         # Release the video capture when the object is deleted

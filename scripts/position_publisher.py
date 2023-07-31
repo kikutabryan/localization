@@ -94,11 +94,11 @@ class PositionPublisher:
                     self.position_ros[2] = -position_cv2[2]
 
                     # Generate a quaternion from the rotation matrix
-                    quaternion_cv2 = self.rotation_matrix_to_quaternion(board_to_camera_matrix)
+                    quaternion_cv2 = self.rotation_matrix_to_quaternion(np.matmul(board_to_camera_matrix, self.rotation_matrix_xyz(0, 0, -np.pi / 2)))
 
                     # Convert CV2 quaternion to ROS
-                    self.quaternion_ros[0] = -quaternion_cv2[1]
-                    self.quaternion_ros[1] = -quaternion_cv2[0]
+                    self.quaternion_ros[0] = quaternion_cv2[0]
+                    self.quaternion_ros[1] = -quaternion_cv2[1]
                     self.quaternion_ros[2] = -quaternion_cv2[2]
                     self.quaternion_ros[3] = quaternion_cv2[3]
 
@@ -122,6 +122,32 @@ class PositionPublisher:
 
         except Exception as e:
             rospy.logerr('Error: ' + str(e))
+
+    import numpy as np
+
+    def rotation_matrix_xyz(self, theta_x, theta_y, theta_z):
+        cos_x = np.cos(theta_x)
+        sin_x = np.sin(theta_x)
+        cos_y = np.cos(theta_y)
+        sin_y = np.sin(theta_y)
+        cos_z = np.cos(theta_z)
+        sin_z = np.sin(theta_z)
+
+        R_x = np.array([[1, 0, 0],
+                        [0, cos_x, -sin_x],
+                        [0, sin_x, cos_x]])
+
+        R_y = np.array([[cos_y, 0, sin_y],
+                        [0, 1, 0],
+                        [-sin_y, 0, cos_y]])
+
+        R_z = np.array([[cos_z, -sin_z, 0],
+                        [sin_z, cos_z, 0],
+                        [0, 0, 1]])
+
+        R = np.dot(np.dot(R_z, R_y), R_x)
+
+        return R
 
     def rotation_matrix_to_quaternion(self, m):
         q = np.empty((4,), dtype=np.float64)
