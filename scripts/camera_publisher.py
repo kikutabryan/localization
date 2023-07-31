@@ -47,23 +47,24 @@ class CameraPublisher:
                 rospy.logerr('Error: ' + str(e))
 
     def publish_image(self):
-        # Read a frame from the camera feed
-        ret, frame = self.cap.read()
+        while not rospy.is_shutdown():
+            # Read a frame from the camera feed
+            ret, frame = self.cap.read()
 
-        if ret:
-            # Resize frame to smaller size
-            # frame = cv2.resize(frame, (960, 540))
+            if ret:
+                # Resize frame to smaller size
+                # frame = cv2.resize(frame, (960, 540))
 
-            # Convert the image to a ROS Image message
-            self.ros_image = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
+                # Convert the image to a ROS Image message
+                self.ros_image = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
 
-        else:
-            # Attempt to connect the camera again
-            self.connect_camera()
+            else:
+                # Attempt to connect the camera again
+                self.connect_camera()
 
-        if self.ros_image is not None:
-            # Publish the image on the specified topic
-            self.publisher_.publish(self.ros_image)
+            if self.ros_image is not None:
+                # Publish the image on the specified topic
+                self.publisher_.publish(self.ros_image)
 
     def __del__(self):
         # Release the video capture when the object is deleted
