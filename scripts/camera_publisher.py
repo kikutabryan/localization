@@ -17,7 +17,16 @@ class CameraPublisher:
         self.bridge = CvBridge()
 
         # Get the video source path from the parameter server
-        self.video_source = rospy.get_param('video_source', 'nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! nvvidconv flip-method=3 ! videoconvert ! video/x-raw, format=(string)BGR ! appsink')
+        # self.video_source = rospy.get_param('video_source', 'nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! nvvidconv flip-method=3 ! videoconvert ! video/x-raw, format=(string)BGR ! appsink')
+
+        sensor_id = 1
+        capture_width = 1280
+        capture_height = 720
+        display_width = 1280
+        display_height = 720
+        framerate = 60
+        flip_method = 3
+        self.video_source = "nvarguscamerasrc sensor-id=%d ! video/x-raw(memory:NVMM), width=(int)%d, height=(int)%d, framerate=(fraction)%d/1 ! nvvidconv flip-method=%d ! video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink" % (sensor_id, capture_width, capture_height, framerate, flip_method, display_width, display_height)
 
         # Video capture object
         self.cap = None
@@ -34,11 +43,11 @@ class CameraPublisher:
             try:
                 # Open the camera feed
                 source = self.video_source
-                self.cap = cv2.VideoCapture(source)
+                self.cap = cv2.VideoCapture(source, cv2.CAP_GSTREAMER)
                 # self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
                 # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
                 # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-                self.cap.set(cv2.CAP_PROP_FPS, 60)
+                # self.cap.set(cv2.CAP_PROP_FPS, 60)
                 if self.cap.isOpened():
                     rospy.loginfo('Camera was opened successfully')
                 else:
