@@ -19,7 +19,7 @@ class CameraPublisher:
         # Get the video source path from the parameter server
         # self.video_source = rospy.get_param('video_source', 'nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! nvvidconv flip-method=3 ! videoconvert ! video/x-raw, format=(string)BGR ! appsink')
 
-        self.video_sourcesource = "nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! nvvidconv flip-method=0 ! video/x-raw, width=960, height=540, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink"
+        self.video_source = "nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=1280, height=720, framerate=60/1 ! nvvidconv flip-method=0 ! video/x-raw, width=960, height=540, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink"
 
         # Video capture object
         self.cap = None
