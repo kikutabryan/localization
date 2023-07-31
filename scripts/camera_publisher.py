@@ -28,10 +28,6 @@ class CameraPublisher:
         # Open the camera feed
         self.connect_camera()
 
-        # Create a timer event to periodically publish images
-        # The timer period is set to 1/30th of a second (approximately 30 fps)
-        self.timer = rospy.Timer(rospy.Duration(1.0 / 60), self.publish_image)
-
     def connect_camera(self):
         # Check if the video capture is already open or not
         if self.cap is None or not self.cap.isOpened():
@@ -77,7 +73,7 @@ class CameraPublisher:
 
 def main():
     camera_publisher = CameraPublisher()
-    rospy.spin()
+    camera_publisher.publish_image()
     del camera_publisher
 
 
