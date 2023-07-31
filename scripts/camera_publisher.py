@@ -43,7 +43,7 @@ class CameraPublisher:
             try:
                 # Open the camera feed
                 source = self.video_source
-                self.cap = cv2.VideoCapture(source)
+                self.cap = cv2.VideoCapture(source, cv2.CAP_GSTREAMER)
                 # self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
                 # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
                 # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
