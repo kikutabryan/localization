@@ -184,6 +184,14 @@ class PositionPublisher:
     
     def save_to_csv(self, timestamp, x, y, z):
         try:
+            file_exists = os.path.isfile('position_data.csv')
+
+            # If the file does not exist, create a new one and write the header row
+            if not file_exists:
+                with open('position_data.csv', mode='w', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(['Timestamp', 'X', 'Y', 'Z'])
+
             # Open the CSV file in append mode and write the data to a row
             with open('position_data.csv', mode='a', newline='') as file:
                 writer = csv.writer(file)
