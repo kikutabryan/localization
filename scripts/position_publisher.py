@@ -57,16 +57,6 @@ class PositionPublisher:
         # Create the aruco board object with 4x4 grid and 16 markers
         self.board = cv2.aruco.GridBoard_create(self.markers_y, self.markers_x, self.marker_size, self.marker_spacing, self.aruco_dict)
 
-        # Generate the file name with the current date and time
-        now = datetime.datetime.now()
-        self.file_name = f"position_data_{now.strftime('%Y-%m-%d_%H-%M-%S')}.csv"
-
-        # Prepare the CSV file with headers
-        with open(self.file_name, "w") as csvfile:
-            csv_writer = csv.writer(csvfile)
-            csv_writer.writerow(["Timestamp", "X", "Y", "Z"])
-
-
     def update_position(self, msg):
         # Convert the ROS Image message to an OpenCV image
         self.frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
@@ -191,17 +181,15 @@ class PositionPublisher:
                 q[1] = (m[1, 2] + m[2, 1]) / s
                 q[2] = 0.25 * s
         return q
-
+    
     def save_to_csv(self, timestamp, x, y, z):
-        # Prepare the data to be saved in the CSV file
-        data = [
-            [timestamp.to_sec(), float(x), float(y), float(z)]
-        ]
-
-        # Open the file in append mode and add new data
-        with open(self.file_name, "a") as csvfile:
-            csv_writer = csv.writer(csvfile)
-            csv_writer.writerows(data)
+        try:
+            # Open the CSV file in append mode and write the data to a row
+            with open('position_data.csv', mode='a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([timestamp, x, y, z])
+        except Exception as e:
+            rospy.logerr('Error: ' + str(e))
 
 def main():
     position_publisher = PositionPublisher()
