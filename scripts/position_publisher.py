@@ -184,16 +184,20 @@ class PositionPublisher:
     
     def save_to_csv(self, timestamp, x, y, z):
         try:
-            file_exists = os.path.isfile('position_data.csv')
+            file_path = 'position_data.csv'
+            rospy.loginfo(f"Current Working Directory: {os.getcwd()}")
+            rospy.loginfo(f"Saving file to: {file_path}")
+
+            file_exists = os.path.isfile(file_path)
 
             # If the file does not exist, create a new one and write the header row
             if not file_exists:
-                with open('position_data.csv', mode='w', newline='') as file:
+                with open(file_path, mode='w', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(['Timestamp', 'X', 'Y', 'Z'])
 
             # Open the CSV file in append mode and write the data to a row
-            with open('position_data.csv', mode='a', newline='') as file:
+            with open(file_path, mode='a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow([timestamp, x, y, z])
         except Exception as e:
