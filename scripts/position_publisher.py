@@ -5,7 +5,6 @@ import rospy
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-import os
 import csv
 import datetime
 
