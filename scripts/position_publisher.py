@@ -32,11 +32,11 @@ class PositionPublisher:
         self.markers_y = rospy.get_param('markers_y', 7)
 
         # Parse the camera matrix from the parameter server and convert it to a NumPy array
-        camera_matrix_str = rospy.get_param('camera_matrix', None)
+        camera_matrix_str = rospy.get_param('camera_matrix', '[[1204.4697584542726, 0.0, 354.6182298916754], [0.0, 1201.8571173383637, 652.7026112972777], [0.0, 0.0, 1.0]]')
         self.camera_matrix = np.array(ast.literal_eval(camera_matrix_str))
 
         # Parse the distortion coefficients from the parameter server and convert them to a NumPy array
-        dist_coeffs_str = rospy.get_param('dist_coeffs', None)
+        dist_coeffs_str = rospy.get_param('dist_coeffs', '[[0.008252427738841408, 0.17962144633096283, -0.0010671121861827175, -0.0017195153485555525, -0.7083074964169391]]')
         self.dist_coeffs = np.array(ast.literal_eval(dist_coeffs_str))
 
         # Create a publisher to publish positions on the specified topic
