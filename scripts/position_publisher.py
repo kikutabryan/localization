@@ -120,13 +120,11 @@ class PositionPublisher:
             self.publisher1_.publish(vision_msg)
 
             # Save the data to the CSV file
-            self.save_to_csv(vision_msg.header.stamp, vision_msg.pose.position.x,
-                             vision_msg.pose.position.y, vision_msg.pose.position.z)
+            rospy.loginfo("here")
+            self.save_to_csv(vision_msg.header.stamp, vision_msg.pose.position.x, vision_msg.pose.position.y, vision_msg.pose.position.z)
 
         except Exception as e:
             rospy.logerr('Error: ' + str(e))
-
-    import numpy as np
 
     def rotation_matrix_xyz(self, theta_x, theta_y, theta_z):
         cos_x = np.cos(theta_x)
