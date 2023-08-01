@@ -120,7 +120,6 @@ class PositionPublisher:
             self.publisher1_.publish(vision_msg)
 
             # Save the data to the CSV file
-            rospy.loginfo("here")
             self.save_to_csv(vision_msg.header.stamp, vision_msg.pose.position.x, vision_msg.pose.position.y, vision_msg.pose.position.z)
 
         except Exception as e:
