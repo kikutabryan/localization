@@ -5,7 +5,9 @@ import rospy
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-
+import os
+import csv
+import datetime
 
 class PositionPublisher:
     def __init__(self):
@@ -54,8 +56,17 @@ class PositionPublisher:
         self.aruco_params = cv2.aruco.DetectorParameters_create()
 
         # Create the aruco board object with 4x4 grid and 16 markers
-        self.board = cv2.aruco.GridBoard_create(self.markers_y, self.markers_x, self.marker_size, self.marker_spacing,
-                                                self.aruco_dict)
+        self.board = cv2.aruco.GridBoard_create(self.markers_y, self.markers_x, self.marker_size, self.marker_spacing, self.aruco_dict)
+
+        # Generate the file name with the current date and time
+        now = datetime.datetime.now()
+        self.file_name = f"position_data_{now.strftime('%Y-%m-%d_%H-%M-%S')}.csv"
+
+        # Prepare the CSV file with headers
+        with open(self.file_name, "w") as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerow(["Timestamp", "X", "Y", "Z"])
+
 
     def update_position(self, msg):
         # Convert the ROS Image message to an OpenCV image
@@ -68,8 +79,7 @@ class PositionPublisher:
             # If at least one marker is detected
             if ids is not None:
                 # Estimate the pose of the board relative to the camera
-                ret, rvec, tvec = cv2.aruco.estimatePoseBoard(corners, ids, self.board, self.camera_matrix,
-                                                            self.dist_coeffs, None, None, False)
+                ret, rvec, tvec = cv2.aruco.estimatePoseBoard(corners, ids, self.board, self.camera_matrix, self.dist_coeffs, None, None, False)
 
                 # If the pose estimation is successful
                 if ret > 0:
@@ -119,6 +129,10 @@ class PositionPublisher:
             vision_msg.pose.orientation.z = float(self.quaternion_ros[2])
             vision_msg.pose.orientation.w = float(self.quaternion_ros[3])
             self.publisher1_.publish(vision_msg)
+
+            # Save the data to the CSV file
+            self.save_to_csv(vision_msg.header.stamp, vision_msg.pose.position.x,
+                             vision_msg.pose.position.y, vision_msg.pose.position.z)
 
         except Exception as e:
             rospy.logerr('Error: ' + str(e))
@@ -179,6 +193,16 @@ class PositionPublisher:
                 q[2] = 0.25 * s
         return q
 
+    def save_to_csv(self, timestamp, x, y, z):
+        # Prepare the data to be saved in the CSV file
+        data = [
+            [timestamp.to_sec(), float(x), float(y), float(z)]
+        ]
+
+        # Open the file in append mode and add new data
+        with open(self.file_name, "a") as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerows(data)
 
 def main():
     position_publisher = PositionPublisher()
