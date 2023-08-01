@@ -2,12 +2,22 @@ import cv2
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 import rospy
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
 
 
 class CameraPublisher:
     def __init__(self):
+        """
+        Initialize the CameraPublisher class.
+
+        This class is responsible for capturing images from the camera feed and publishing
+        them as ROS Image messages on the specified topic.
+
+        It uses OpenCV for video capture and the CvBridge class to convert OpenCV images
+        to ROS Image messages.
+
+        ROS parameters:
+        - video_source: The video source for the camera feed in GStreamer pipeline format.
+        """
         rospy.init_node('camera_publisher')
 
         # Create a publisher to publish images on the specified topic
@@ -28,16 +38,28 @@ class CameraPublisher:
         self.connect_camera()
 
     def connect_camera(self):
+        """
+        Open the camera feed and connect to the video source.
+
+        This function opens the camera feed using the GStreamer pipeline format
+        specified in the 'video_source' parameter. It initializes the video capture
+        object and logs the success or failure of the camera connection.
+
+        Note: This function is automatically called when the CameraPublisher object is created.
+        """
         # Check if the video capture is already open or not
         if self.cap is None or not self.cap.isOpened():
             try:
                 # Open the camera feed
                 source = self.video_source
                 self.cap = cv2.VideoCapture(source, cv2.CAP_GSTREAMER)
+
+                # Uncomment the following lines to set video properties (optional)
                 # self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
                 # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
                 # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
                 # self.cap.set(cv2.CAP_PROP_FPS, 60)
+
                 if self.cap.isOpened():
                     rospy.loginfo('Camera was opened successfully')
                     rospy.loginfo(self.cap.get(cv2.CAP_PROP_FPS))
@@ -47,14 +69,19 @@ class CameraPublisher:
                 rospy.logerr('Error: ' + str(e))
 
     def publish_image(self):
+        """
+        Continuously publish images from the camera feed.
+
+        This function runs in a loop and continuously captures frames from the camera feed.
+        It converts each frame to a ROS Image message and publishes it on the specified topic.
+
+        Note: This function should be called after the CameraPublisher object is created.
+        """
         while not rospy.is_shutdown():
             # Read a frame from the camera feed
             ret, frame = self.cap.read()
 
             if ret:
-                # Resize frame to smaller size
-                # frame = cv2.resize(frame, (960, 540))
-
                 # Convert the image to a ROS Image message
                 self.ros_image = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
 
@@ -67,6 +94,12 @@ class CameraPublisher:
                 self.publisher_.publish(self.ros_image)
 
     def __del__(self):
+        """
+        Destructor for the CameraPublisher class.
+
+        This function is automatically called when the CameraPublisher object is deleted.
+        It releases the video capture object to free up resources.
+        """
         # Release the video capture when the object is deleted
         if self.cap is not None:
             self.cap.release()

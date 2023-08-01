@@ -10,6 +10,26 @@ import os
 
 class PositionPublisher:
     def __init__(self):
+        """
+        Initialize the PositionPublisher class.
+
+        This class is responsible for detecting ArUco markers in the camera image,
+        estimating the pose of the ArUco board relative to the camera, and publishing
+        the position and orientation of the board as a ROS PoseStamped message.
+
+        It also saves the position data to a CSV file.
+
+        The class subscribes to the camera image topic and publishes the position on
+        the specified topic. It uses OpenCV for ArUco marker detection and pose estimation.
+
+        ROS parameters:
+        - marker_size: Size of the ArUco marker side length in meters.
+        - marker_spacing: Spacing between adjacent ArUco markers on the board in meters.
+        - markers_x: Number of markers along the X axis of the board.
+        - markers_y: Number of markers along the Y axis of the board.
+        - camera_matrix: Camera intrinsic matrix as a string representation of a 3x3 list.
+        - dist_coeffs: Camera distortion coefficients as a string representation of a 1x5 list.
+        """
         rospy.init_node('position_publisher')
 
         self.frame = None
@@ -58,6 +78,18 @@ class PositionPublisher:
         self.board = cv2.aruco.GridBoard_create(self.markers_y, self.markers_x, self.marker_size, self.marker_spacing, self.aruco_dict)
 
     def update_position(self, msg):
+        """
+        Callback function for the camera image subscriber.
+
+        This function detects ArUco markers in the camera image and estimates the pose
+        of the ArUco board relative to the camera. It then converts the pose to ROS
+        coordinate convention (ENU) and stores the position and orientation.
+
+        Parameters:
+        - msg: The ROS Image message from the camera.
+
+        Note: This function is called automatically when a new camera image is received.
+        """
         # Convert the ROS Image message to an OpenCV image
         self.frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
 
@@ -105,6 +137,15 @@ class PositionPublisher:
             rospy.logerr('Error: ' + str(e))
 
     def publish_position(self, event):
+        """
+        Publish the position and orientation as a ROS PoseStamped message.
+
+        This function is called periodically based on the timer to publish the
+        position and orientation of the ArUco board as a ROS PoseStamped message.
+
+        Parameters:
+        - event: The ROS Timer event triggering the function.
+        """
         try:
             # Publish the position as a ROS message
             vision_msg = PoseStamped()
@@ -126,6 +167,17 @@ class PositionPublisher:
             rospy.logerr('Error: ' + str(e))
 
     def rotation_matrix_xyz(self, theta_x, theta_y, theta_z):
+        """
+        Create a 3x3 rotation matrix for rotations around the X, Y, and Z axes.
+
+        Parameters:
+        - theta_x: Rotation angle around the X axis in radians.
+        - theta_y: Rotation angle around the Y axis in radians.
+        - theta_z: Rotation angle around the Z axis in radians.
+
+        Returns:
+        - R: 3x3 NumPy array representing the rotation matrix.
+        """
         cos_x = np.cos(theta_x)
         sin_x = np.sin(theta_x)
         cos_y = np.cos(theta_y)
@@ -150,6 +202,15 @@ class PositionPublisher:
         return R
 
     def rotation_matrix_to_quaternion(self, m):
+        """
+        Convert a 3x3 rotation matrix to a quaternion.
+
+        Parameters:
+        - m: 3x3 NumPy array representing the rotation matrix.
+
+        Returns:
+        - q: 1x4 NumPy array representing the quaternion (x, y, z, w).
+        """
         q = np.empty((4,), dtype=np.float64)
         trace = m[0, 0] + m[1, 1] + m[2, 2]
         if trace > 0:
@@ -178,11 +239,22 @@ class PositionPublisher:
                 q[1] = (m[1, 2] + m[2, 1]) / s
                 q[2] = 0.25 * s
         return q
-    
+
     def save_to_csv(self, timestamp, x, y, z):
+        """
+        Save the position data to a CSV file.
+
+        Parameters:
+        - timestamp: The timestamp of the position data.
+        - x: X-coordinate of the position.
+        - y: Y-coordinate of the position.
+        - z: Z-coordinate of the position.
+
+        Note: The data is appended to the CSV file with the following format:
+              Timestamp, X, Y, Z
+        """
         try:
-            file_path = 'position_data.csv'
-            rospy.loginfo(f"Current Working Directory: {os.getcwd()}")
+            file_path = os.path.join(os.path.expanduser('~'), 'position_data.csv')
             rospy.loginfo(f"Saving file to: {file_path}")
 
             file_exists = os.path.isfile(file_path)
