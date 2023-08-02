@@ -132,7 +132,7 @@ class MoCapPubSub:
         """
         try:
             file_path = os.path.join(os.path.expanduser('~'), 'position_data_crazyflie.csv')
-            rospy.loginfo(f"Saving file to: {file_path}")
+            # rospy.loginfo(f"Saving file to: {file_path}")
 
             file_exists = os.path.isfile(file_path)
 
