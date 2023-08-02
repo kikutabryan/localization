@@ -46,7 +46,7 @@ class MoCapPubSub:
     def _connected(self, link_uri):
         print('Connected to %s' % link_uri)
 
-        self._lg_stab = LogConfig(name='Stabilizer', period_in_ms=10)
+        self._lg_stab = LogConfig(name='Stabilizer', period_in_ms=20)
         self._lg_stab.add_variable('stateEstimate.x', 'float')
         self._lg_stab.add_variable('stateEstimate.y', 'float')
         self._lg_stab.add_variable('stateEstimate.z', 'float')
@@ -102,7 +102,7 @@ class MoCapPubSub:
         # Save the data to the CSV file
         self.save_to_csv(pose_msg.header.stamp, pose_msg.pose.position.x, pose_msg.pose.position.y, pose_msg.pose.position.z, pose_msg.pose.orientation.x, pose_msg.pose.orientation.y, pose_msg.pose.orientation.z, pose_msg.pose.orientation.w)
 
-        print(f'quaternion=({quaternion[0]:.2f},{quaternion[1]:.2f},{quaternion[2]:.2f},{quaternion[3]:.2f})')
+        # print(f'quaternion=({quaternion[0]:.2f},{quaternion[1]:.2f},{quaternion[2]:.2f},{quaternion[3]:.2f})')
 
         print(f'position: x=({y:.2f}, y={y:.2f}, z_cf={z:.2f}, z_px4={px4_z:.2f}) Euler_Angles=({roll:.2f}, {pitch:.2f}, {yaw:.2f})')
 
