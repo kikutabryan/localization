@@ -254,7 +254,7 @@ class PositionPublisher:
               Timestamp, X, Y, Z
         """
         try:
-            file_path = os.path.join(os.path.expanduser('~'), 'position_data.csv')
+            file_path = os.path.join(os.path.expanduser('~'), 'position_data_aruco.csv')
             rospy.loginfo(f"Saving file to: {file_path}")
 
             file_exists = os.path.isfile(file_path)
