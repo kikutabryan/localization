@@ -145,7 +145,7 @@ class MoCapPubSub:
             # Open the CSV file in append mode and write the data to a row
             with open(file_path, mode='a', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow([timestamp, x, y, z])
+                writer.writerow([timestamp, x, y, z, qx, qy, qz, qw])
         except Exception as e:
             rospy.logerr('Error: ' + str(e))
 
