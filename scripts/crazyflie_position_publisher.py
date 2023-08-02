@@ -13,8 +13,8 @@ import tf.transformations
 import os
 import csv
 
-# uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E7E7')
-uri = 'usb://0'
+uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E7E7')
+#uri = 'usb://0'
 
 # Only output errors from the logging framework
 logging.basicConfig(level=logging.ERROR)
