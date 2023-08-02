@@ -88,10 +88,10 @@ class MoCapPubSub:
         pose_msg.pose.position.x = y
         pose_msg.pose.position.y = x
         pose_msg.pose.position.z = px4_z
-        #pose_msg.pose.orientation.x = quaternion[0]
-        #pose_msg.pose.orientation.y = quaternion[1]
-        #pose_msg.pose.orientation.z = quaternion[2]
-        #pose_msg.pose.orientation.w = quaternion[3]
+        pose_msg.pose.orientation.x = quaternion[0]
+        pose_msg.pose.orientation.y = quaternion[1]
+        pose_msg.pose.orientation.z = quaternion[2]
+        pose_msg.pose.orientation.w = quaternion[3]
         #pose_msg.pose.orientation.x = NaN
         #pose_msg.pose.orientation.y = NaN
         #pose_msg.pose.orientation.z = NaN
@@ -99,7 +99,7 @@ class MoCapPubSub:
         # self.mocap_pub.publish(pose_msg)
 
         # Save the data to the CSV file
-        self.save_to_csv(pose_msg.header.stamp, pose_msg.pose.position.x, pose_msg.pose.position.y, pose_msg.pose.position.z)
+        self.save_to_csv(pose_msg.header.stamp, pose_msg.pose.position.x, pose_msg.pose.position.y, pose_msg.pose.position.z, pose_msg.pose.orientation.x, pose_msg.pose.orientation.y, pose_msg.pose.orientation.z, pose_msg.pose.orientation.w)
 
         print(f'quaternion=({quaternion[0]:.2f},{quaternion[1]:.2f},{quaternion[2]:.2f},{quaternion[3]:.2f})')
 
@@ -116,7 +116,7 @@ class MoCapPubSub:
         print('Disconnected from %s' % link_uri)
         self.is_connected = False
 
-    def save_to_csv(self, timestamp, x, y, z):
+    def save_to_csv(self, timestamp, x, y, z, qx, qy, qz, qw):
         """
         Save the position data to a CSV file.
 
@@ -139,7 +139,7 @@ class MoCapPubSub:
             if not file_exists:
                 with open(file_path, mode='w', newline='') as file:
                     writer = csv.writer(file)
-                    writer.writerow(['Timestamp', 'X', 'Y', 'Z'])
+                    writer.writerow(['Timestamp', 'X', 'Y', 'Z', 'qX', 'qY', 'qZ', 'qW'])
 
             # Open the CSV file in append mode and write the data to a row
             with open(file_path, mode='a', newline='') as file:

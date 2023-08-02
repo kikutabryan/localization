@@ -47,7 +47,7 @@ class PositionPublisher:
 
         # Declare parameters
         self.marker_size = rospy.get_param('marker_size', 0.075)
-        self.marker_spacing = rospy.get_param('marker_spacing', 0.5)
+        self.marker_spacing = rospy.get_param('marker_spacing', 0.522)
         self.markers_x = rospy.get_param('markers_x', 7)
         self.markers_y = rospy.get_param('markers_y', 7)
 
@@ -161,7 +161,7 @@ class PositionPublisher:
             self.publisher1_.publish(vision_msg)
 
             # Save the data to the CSV file
-            self.save_to_csv(vision_msg.header.stamp, vision_msg.pose.position.x, vision_msg.pose.position.y, vision_msg.pose.position.z)
+            self.save_to_csv(vision_msg.header.stamp, vision_msg.pose.position.x, vision_msg.pose.position.y, vision_msg.pose.position.z, vision_msg.pose.orientation.x, vision_msg.pose.orientation.y, vision_msg.pose.orientation.z, vision_msg.pose.orientation.w)
 
         except Exception as e:
             rospy.logerr('Error: ' + str(e))
@@ -240,7 +240,7 @@ class PositionPublisher:
                 q[2] = 0.25 * s
         return q
 
-    def save_to_csv(self, timestamp, x, y, z):
+    def save_to_csv(self, timestamp, x, y, z, qx, qy, qz, qw):
         """
         Save the position data to a CSV file.
 
@@ -263,7 +263,7 @@ class PositionPublisher:
             if not file_exists:
                 with open(file_path, mode='w', newline='') as file:
                     writer = csv.writer(file)
-                    writer.writerow(['Timestamp', 'X', 'Y', 'Z'])
+                    writer.writerow(['Timestamp', 'X', 'Y', 'Z', 'qX', 'qY', 'qZ', 'qW'])
 
             # Open the CSV file in append mode and write the data to a row
             with open(file_path, mode='a', newline='') as file:
