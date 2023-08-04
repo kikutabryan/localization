@@ -35,7 +35,6 @@ class PositionPublisher:
 
         # Create a publisher to publish positions on the specified topic
         self.publisher1_ = rospy.Publisher('position_turtle_bot', PoseStamped, queue_size=10)
-        self.timer = rospy.Timer(rospy.Duration(1.0 / 50), self.publish_position)
 
         # Create a subscriber to listen to the camera image topic
         self.subscription1 = rospy.Subscriber('camera_image_topic', Image, self.update_position, queue_size=10)
@@ -103,20 +102,12 @@ class PositionPublisher:
 
                     # Set the turtlebot position
                     self.turtle_position = position_t_w
+                    self.publish_position()
 
         except Exception as e:
             rospy.logerr('Error: ' + str(e))
 
-    def publish_position(self, event):
-        """
-        Publish the position and orientation as a ROS PoseStamped message.
-
-        This function is called periodically based on the timer to publish the
-        position and orientation of the ArUco board as a ROS PoseStamped message.
-
-        Parameters:
-        - event: The ROS Timer event triggering the function.
-        """
+    def publish_position(self):
         try:
             # Publish the position as a ROS message
             vision_msg = PoseStamped()
