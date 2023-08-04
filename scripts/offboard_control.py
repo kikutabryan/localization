@@ -31,9 +31,10 @@ class OffboardController:
         self.current_altitude = Altitude()
 
         self.turtle_position = PoseStamped()
-        self.turtle_position.pose.position.x = 0
-        self.turtle_position.pose.position.y = 0
-        self.turtle_position.pose.position.z = 1.5
+        self.turtle_position = Point()
+        self.turtle_position.x = 0
+        self.turtle_position.y = 0
+        self.turtle_position.z = 1.5
 
     def state_callback(self, msg):
         """Update the vehicle state.
@@ -84,7 +85,11 @@ class OffboardController:
         self.current_pose = msg
 
     def update_turtle_position(self, msg):
-        self.turtle_position = msg
+        if abs(msg.pose.position.x) <= 1.5:
+            self.turtle_position.x = msg.pose.position.x
+        if abs(msg.pose.position.y) <= 1.5:
+            self.turtle_position.y = msg.pose.position.y
+        self.turtle_position.z = 1.5
 
     def set_parameter(self, parameter, value):
         rospy.wait_for_service('/mavros/param/set')
@@ -428,6 +433,7 @@ class OffboardController:
     def turtle_chaser(self):
         rate = rospy.Rate(20)
         while not rospy.is_shutdown():
+            
             self.send_position(self.turtle_position.pose.position)
             if self.current_state.mode != 'OFFBOARD':
                 self.set_mode('OFFBOARD')
