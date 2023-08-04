@@ -432,11 +432,8 @@ class OffboardController:
 
     def turtle_chaser(self):
         rate = rospy.Rate(20)
-        while not rospy.is_shutdown():
-            
+        while not rospy.is_shutdown():    
             self.send_position(self.turtle_position.pose.position)
-            if self.current_state.mode != 'OFFBOARD':
-                self.set_mode('OFFBOARD')
             rate.sleep()
 
 
