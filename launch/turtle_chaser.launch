@@ -1,0 +1,5 @@
+<launch>
+    <node name="camera_publisher" pkg="localization" type="camera_publisher.py" />
+    <node name="crazyflie_position_publisher" pkg="localization" type="crazyflie_position_publisher.py" />
+    <node name="turtle_position_publisher" pkg="localization" type="turtle_position_publisher.py" />
+</launch>
